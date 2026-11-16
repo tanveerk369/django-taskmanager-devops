@@ -10,11 +10,18 @@ pipeline {
             }
         }
 
-        stage('Django Validation') {
+        stage('Docker Build') {
             steps {
                 sh '''
-                    docker compose up -d db
-                    docker compose run --rm web python manage.py check
+                    docker build -t taskmanagerapp:${BUILD_NUMBER} .
+                '''
+            }
+        }
+
+        stage('Build Verification') {
+            steps {
+                sh '''
+                    docker images taskmanagerapp
                 '''
             }
         }
@@ -22,7 +29,7 @@ pipeline {
 
     post {
         success {
-            echo 'Initial CI pipeline completed successfully!'
+            echo 'CI pipeline completed successfully!'
         }
 
         failure {
