@@ -25,11 +25,29 @@ pipeline {
                 '''
             }
         }
+
+        stage('Deploy Application') {
+            steps {
+                sh '''
+                    docker compose -p taskmanagerapp \
+                    -f docker-compose.yml up -d --build
+                '''
+            }
+        }
+
+        stage('Health Check') {
+            steps {
+                sh '''
+                    sleep 10
+                    curl -f http://localhost:8000/ || exit 1
+                '''
+            }
+        }
     }
 
     post {
         success {
-            echo 'CI pipeline completed successfully!'
+            echo 'Application deployed successfully!'
         }
 
         failure {
